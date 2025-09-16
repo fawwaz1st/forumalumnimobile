@@ -30,6 +30,7 @@ android {
         targetSdk = 34
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        
     }
 
     buildTypes {
@@ -47,15 +48,8 @@ android {
         }
     }
 
-    // Split per ABI to significantly reduce APK size per architecture
-    splits {
-        abi {
-            isEnable = true
-            reset()
-            include("armeabi-v7a", "arm64-v8a")
-            isUniversalApk = false
-        }
-    }
+    // Note: ABI splits temporarily disabled due to Flutter NDK conflicts
+    // Can be re-enabled after resolving Flutter's automatic NDK configuration
 }
 
 flutter {

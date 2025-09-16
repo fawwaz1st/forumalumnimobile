@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:developer' as dev;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -10,6 +11,10 @@ import 'core/constants/app_config.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final appStart = DateTime.now();
+  
+  // Load environment variables
+  await dotenv.load(fileName: ".env");
+  
   await Hive.initFlutter();
   // Ensure settings box opened before widgets build
   await Hive.openBox<String>('app_settings');

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'theme/app_theme.dart';
+import 'core/theme/app_theme.dart';
 import 'router/app_router.dart';
 import 'features/settings/providers/settings_controller.dart';
 import 'features/notifications/notification_listener.dart';
@@ -13,8 +13,8 @@ class App extends ConsumerWidget {
     final settings = ref.watch(settingsControllerProvider);
     return MaterialApp.router(
       title: 'Forum Alumni',
-      theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
       themeMode: settings.themeMode,
       routerConfig: ref.watch(routerProvider),
       debugShowCheckedModeBanner: false,

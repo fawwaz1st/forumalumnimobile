@@ -8,7 +8,7 @@ import '../../shared/widgets/custom_text_field.dart';
 import '../../shared/widgets/password_strength_indicator.dart';
 import '../../shared/widgets/primary_button.dart';
 import '../../shared/widgets/snackbars.dart';
-import '../../shared/widgets/loading_overlay.dart';
+import '../../shared/widgets/modern_loading_overlay.dart';
 
 class RegisterView extends ConsumerStatefulWidget {
   const RegisterView({super.key});
@@ -49,86 +49,163 @@ class _RegisterViewState extends ConsumerState<RegisterView> {
 
     final theme = Theme.of(context);
 
-    return LoadingOverlay(
+    return ModernLoadingOverlay(
       isLoading: isLoading,
+      loadingText: 'Sedang mendaftar...',
       child: Scaffold(
-        appBar: AppBar(title: const Text('Daftar Akun')),
-        body: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 480),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+        backgroundColor: theme.colorScheme.surface,
+        body: SafeArea(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 400),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Logo dan Welcome Section
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 40),
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.primaryContainer,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: theme.colorScheme.primary.withOpacity(0.1),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: Icon(
+                              Icons.person_add_rounded,
+                              size: 48,
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Text(
+                            'Bergabung Dengan Kami',
+                            style: theme.textTheme.headlineMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Buat akun baru untuk akses penuh ke Forum Alumni',
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              color: theme.colorScheme.onSurface.withOpacity(0.7),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    // Form Card
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surface,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: theme.colorScheme.outline.withOpacity(0.2),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            CustomTextField(
+                              controller: _nameCtrl,
+                              label: 'Nama Lengkap',
+                              prefixIcon: const Icon(Icons.person_outline),
+                              validator: (v) => Validators.requiredField(v, fieldName: 'Nama'),
+                              textInputAction: TextInputAction.next,
+                            ),
+                            const SizedBox(height: 16),
+                            CustomTextField(
+                              controller: _emailCtrl,
+                              label: 'Email',
+                              keyboardType: TextInputType.emailAddress,
+                              prefixIcon: const Icon(Icons.email_outlined),
+                              validator: Validators.email,
+                              textInputAction: TextInputAction.next,
+                            ),
+                            const SizedBox(height: 16),
+                            CustomTextField(
+                              controller: _passwordCtrl,
+                              label: 'Password',
+                              obscureText: true,
+                              showPasswordToggle: true,
+                              prefixIcon: const Icon(Icons.lock_outline),
+                              validator: Validators.password,
+                              onChanged: (_) => setState(() {}),
+                              textInputAction: TextInputAction.next,
+                            ),
+                            const SizedBox(height: 12),
+                            PasswordStrengthIndicator(password: _passwordCtrl.text),
+                            const SizedBox(height: 16),
+                            CustomTextField(
+                              controller: _confirmCtrl,
+                              label: 'Konfirmasi Password',
+                              obscureText: true,
+                              showPasswordToggle: true,
+                              prefixIcon: const Icon(Icons.lock_outline),
+                              validator: (v) => Validators.confirmPassword(v, _passwordCtrl.text),
+                              textInputAction: TextInputAction.done,
+                            ),
+                            const SizedBox(height: 24),
+                            PrimaryButton(
+                              label: 'Daftar',
+                              isLoading: isLoading,
+                              onPressed: () async {
+                                if (_formKey.currentState!.validate()) {
+                                  await ref.read(authControllerProvider.notifier).register(
+                                        _nameCtrl.text.trim(),
+                                        _emailCtrl.text.trim(),
+                                        _passwordCtrl.text,
+                                      );
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 24),
+                    
+                    // Login Link
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('Buat Akun Baru', style: theme.textTheme.titleLarge),
-                        const SizedBox(height: 16),
-                        CustomTextField(
-                          controller: _nameCtrl,
-                          label: 'Nama Lengkap',
-                          prefixIcon: const Icon(Icons.person_outline),
-                          validator: (v) => Validators.requiredField(v, fieldName: 'Nama'),
-                          textInputAction: TextInputAction.next,
+                        Text(
+                          'Sudah punya akun? ',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurface.withOpacity(0.7),
+                          ),
                         ),
-                        const SizedBox(height: 12),
-                        CustomTextField(
-                          controller: _emailCtrl,
-                          label: 'Email',
-                          keyboardType: TextInputType.emailAddress,
-                          prefixIcon: const Icon(Icons.email_outlined),
-                          validator: Validators.email,
-                          textInputAction: TextInputAction.next,
-                        ),
-                        const SizedBox(height: 12),
-                        CustomTextField(
-                          controller: _passwordCtrl,
-                          label: 'Password',
-                          obscureText: true,
-                          prefixIcon: const Icon(Icons.lock_outline),
-                          validator: Validators.password,
-                          onChanged: (_) => setState(() {}),
-                          textInputAction: TextInputAction.next,
-                        ),
-                        const SizedBox(height: 8),
-                        PasswordStrengthIndicator(password: _passwordCtrl.text),
-                        const SizedBox(height: 12),
-                        CustomTextField(
-                          controller: _confirmCtrl,
-                          label: 'Konfirmasi Password',
-                          obscureText: true,
-                          prefixIcon: const Icon(Icons.lock_outline),
-                          validator: (v) => Validators.confirmPassword(v, _passwordCtrl.text),
-                          textInputAction: TextInputAction.done,
-                        ),
-                        const SizedBox(height: 20),
-                        PrimaryButton(
-                          label: 'Daftar',
-                          isLoading: isLoading,
-                          onPressed: () async {
-                            if (_formKey.currentState!.validate()) {
-                              await ref.read(authControllerProvider.notifier).register(
-                                    _nameCtrl.text.trim(),
-                                    _emailCtrl.text.trim(),
-                                    _passwordCtrl.text,
-                                  );
-                            }
-                          },
-                        ),
-                        const SizedBox(height: 12),
                         TextButton(
                           onPressed: () => context.go('/login'),
-                          child: const Text('Sudah punya akun? Masuk'),
-                        )
+                          child: const Text('Masuk sekarang'),
+                        ),
                       ],
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),
